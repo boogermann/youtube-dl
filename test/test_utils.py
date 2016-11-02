@@ -69,6 +69,7 @@ from youtube_dl.utils import (
     uppercase_escape,
     lowercase_escape,
     url_basename,
+    base_url,
     urlencode_postdata,
     urshift,
     update_url_query,
@@ -292,6 +293,7 @@ class TestUtil(unittest.TestCase):
         self.assertEqual(unified_strdate('25-09-2014'), '20140925')
         self.assertEqual(unified_strdate('27.02.2016 17:30'), '20160227')
         self.assertEqual(unified_strdate('UNKNOWN DATE FORMAT'), None)
+        self.assertEqual(unified_strdate('Feb 7, 2016 at 6:35 pm'), '20160207')
 
     def test_unified_timestamps(self):
         self.assertEqual(unified_timestamp('December 21, 2010'), 1292889600)
@@ -312,6 +314,7 @@ class TestUtil(unittest.TestCase):
         self.assertEqual(unified_timestamp('27.02.2016 17:30'), 1456594200)
         self.assertEqual(unified_timestamp('UNKNOWN DATE FORMAT'), None)
         self.assertEqual(unified_timestamp('May 16, 2016 11:15 PM'), 1463440500)
+        self.assertEqual(unified_timestamp('Feb 7, 2016 at 6:35 pm'), 1454870100)
 
     def test_determine_ext(self):
         self.assertEqual(determine_ext('http://example.com/foo/bar.mp4/?download'), 'mp4')
@@ -434,6 +437,13 @@ class TestUtil(unittest.TestCase):
         self.assertEqual(
             url_basename('http://media.w3.org/2010/05/sintel/trailer.mp4'),
             'trailer.mp4')
+
+    def test_base_url(self):
+        self.assertEqual(base_url('http://foo.de/'), 'http://foo.de/')
+        self.assertEqual(base_url('http://foo.de/bar'), 'http://foo.de/')
+        self.assertEqual(base_url('http://foo.de/bar/'), 'http://foo.de/bar/')
+        self.assertEqual(base_url('http://foo.de/bar/baz'), 'http://foo.de/bar/')
+        self.assertEqual(base_url('http://foo.de/bar/baz?x=z/x/c'), 'http://foo.de/bar/')
 
     def test_parse_age_limit(self):
         self.assertEqual(parse_age_limit(None), None)

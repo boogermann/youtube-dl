@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 from __future__ import absolute_import, unicode_literals
 
@@ -1658,7 +1658,7 @@ class YoutubeDL(object):
                         video_ext, audio_ext = audio.get('ext'), video.get('ext')
                         if video_ext and audio_ext:
                             COMPATIBLE_EXTS = (
-                                ('mp3', 'mp4', 'm4a', 'm4p', 'm4b', 'm4r', 'm4v'),
+                                ('mp3', 'mp4', 'm4a', 'm4p', 'm4b', 'm4r', 'm4v', 'ismv', 'isma'),
                                 ('webm')
                             )
                             for exts in COMPATIBLE_EXTS:

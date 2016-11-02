@@ -31,7 +31,6 @@ from .aenetworks import (
     HistoryTopicIE,
 )
 from .afreecatv import AfreecaTVIE
-from .aftonbladet import AftonbladetIE
 from .airmozilla import AirMozillaIE
 from .aljazeera import AlJazeeraIE
 from .alphaporno import AlphaPornoIE
@@ -67,6 +66,7 @@ from .arte import (
     ArteTVDDCIE,
     ArteTVMagazineIE,
     ArteTVEmbedIE,
+    TheOperaPlatformIE,
     ArteTVPlaylistIE,
 )
 from .atresplayer import AtresPlayerIE
@@ -94,7 +94,7 @@ from .bbc import (
 from .beeg import BeegIE
 from .behindkink import BehindKinkIE
 from .bellmedia import BellMediaIE
-from .beatportpro import BeatportProIE
+from .beatport import BeatportIE
 from .bet import BetIE
 from .bigflix import BigflixIE
 from .bild import BildIE
@@ -117,7 +117,10 @@ from .brightcove import (
     BrightcoveNewIE,
 )
 from .buzzfeed import BuzzFeedIE
-from .byutv import BYUtvIE
+from .byutv import (
+    BYUtvIE,
+    BYUtvEventIE,
+)
 from .c56 import C56IE
 from .camdemy import (
     CamdemyIE,
@@ -184,7 +187,10 @@ from .comedycentral import (
 )
 from .comcarcoff import ComCarCoffIE
 from .commonmistakes import CommonMistakesIE, UnicodeBOMIE
-from .commonprotocols import RtmpIE
+from .commonprotocols import (
+    MmsIE,
+    RtmpIE,
+)
 from .condenast import CondeNastIE
 from .cracked import CrackedIE
 from .crackle import CrackleIE
@@ -343,7 +349,10 @@ from .goshgay import GoshgayIE
 from .gputechconf import GPUTechConfIE
 from .groupon import GrouponIE
 from .hark import HarkIE
-from .hbo import HBOIE
+from .hbo import (
+    HBOIE,
+    HBOEpisodeIE,
+)
 from .hearthisat import HearThisAtIE
 from .heise import HeiseIE
 from .hellporno import HellPornoIE
@@ -364,6 +373,7 @@ from .hrti import (
     HRTiIE,
     HRTiPlaylistIE,
 )
+from .huajiao import HuajiaoIE
 from .huffpost import HuffPostIE
 from .hypem import HypemIE
 from .iconosquare import IconosquareIE
@@ -398,6 +408,10 @@ from .ivi import (
 from .ivideon import IvideonIE
 from .iwara import IwaraIE
 from .izlesene import IzleseneIE
+from .jamendo import (
+    JamendoIE,
+    JamendoAlbumIE,
+)
 from .jeuxvideo import JeuxVideoIE
 from .jove import JoveIE
 from .jwplatform import JWPlatformIE
@@ -435,6 +449,7 @@ from .lcp import (
 )
 from .learnr import LearnrIE
 from .lecture2go import Lecture2GoIE
+from .lego import LEGOIE
 from .lemonde import LemondeIE
 from .leeco import (
     LeIE,
@@ -581,6 +596,7 @@ from .nhl import (
 from .nick import (
     NickIE,
     NickDeIE,
+    NickNightIE,
 )
 from .niconico import NiconicoIE, NiconicoPlaylistIE
 from .ninecninemedia import (
@@ -590,6 +606,7 @@ from .ninecninemedia import (
 from .ninegag import NineGagIE
 from .ninenow import NineNowIE
 from .nintendo import NintendoIE
+from .nobelprize import NobelPrizeIE
 from .noco import NocoIE
 from .normalboots import NormalbootsIE
 from .nosvideo import NosVideoIE
@@ -612,13 +629,14 @@ from .nowtv import (
 )
 from .noz import NozIE
 from .npo import (
+    AndereTijdenIE,
     NPOIE,
     NPOLiveIE,
     NPORadioIE,
     NPORadioFragmentIE,
     SchoolTVIE,
     VPROIE,
-    WNLIE
+    WNLIE,
 )
 from .npr import NprIE
 from .nrk import (
@@ -634,6 +652,7 @@ from .nytimes import (
     NYTimesArticleIE,
 )
 from .nuvid import NuvidIE
+from .nzz import NZZIE
 from .odatv import OdaTVIE
 from .odnoklassniki import OdnoklassnikiIE
 from .oktoberfesttv import OktoberfestTVIE
@@ -654,6 +673,7 @@ from .orf import (
     ORFFM4IE,
     ORFIPTVIE,
 )
+from .pandatv import PandaTVIE
 from .pandoratv import PandoraTVIE
 from .parliamentliveuk import ParliamentLiveUKIE
 from .patreon import PatreonIE
@@ -727,6 +747,10 @@ from .rbmaradio import RBMARadioIE
 from .rds import RDSIE
 from .redtube import RedTubeIE
 from .regiotv import RegioTVIE
+from .rentv import (
+    RENTVIE,
+    RENTVArticleIE,
+)
 from .restudy import RestudyIE
 from .reuters import ReutersIE
 from .reverbnation import ReverbNationIE
@@ -783,7 +807,10 @@ from .sendtonews import SendtoNewsIE
 from .servingsys import ServingSysIE
 from .sexu import SexuIE
 from .shahid import ShahidIE
-from .shared import SharedIE
+from .shared import (
+    SharedIE,
+    VivoIE,
+)
 from .sharesix import ShareSixIE
 from .sina import SinaIE
 from .sixplay import SixPlayIE
@@ -887,8 +914,10 @@ from .theplatform import (
 from .thescene import TheSceneIE
 from .thesixtyone import TheSixtyOneIE
 from .thestar import TheStarIE
+from .theweatherchannel import TheWeatherChannelIE
 from .thisamericanlife import ThisAmericanLifeIE
 from .thisav import ThisAVIE
+from .thisoldhouse import ThisOldHouseIE
 from .threeqsdn import ThreeQSDNIE
 from .tinypic import TinyPicIE
 from .tlc import TlcDeIE
@@ -903,6 +932,7 @@ from .tnaflix import (
     MovieFapIE,
 )
 from .toggle import ToggleIE
+from .tonline import TOnlineIE
 from .toutv import TouTvIE
 from .toypics import ToypicsUserIE, ToypicsIE
 from .traileraddict import TrailerAddictIE

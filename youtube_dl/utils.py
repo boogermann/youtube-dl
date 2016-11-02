@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 from __future__ import unicode_literals
 
@@ -42,6 +42,7 @@ from .compat import (
     compat_html_entities_html5,
     compat_http_client,
     compat_kwargs,
+    compat_os_name,
     compat_parse_qs,
     compat_shlex_quote,
     compat_socket_create_connection,
@@ -141,6 +142,8 @@ DATE_FORMATS = (
     '%Y-%m-%dT%H:%M:%S',
     '%Y-%m-%dT%H:%M:%S.%f',
     '%Y-%m-%dT%H:%M',
+    '%b %d %Y at %H:%M',
+    '%b %d %Y at %H:%M:%S',
 )
 
 DATE_FORMATS_DAY_FIRST = list(DATE_FORMATS)
@@ -161,6 +164,8 @@ DATE_FORMATS_MONTH_FIRST.extend([
     '%m/%d/%y',
     '%m/%d/%Y %H:%M:%S',
 ])
+
+PACKED_CODES_RE = r"}\('(.+)',(\d+),(\d+),'([^']+)'\.split\('\|'\)"
 
 
 def preferredencoding():
@@ -773,6 +778,26 @@ class ContentTooShortError(Exception):
         # Both in bytes
         self.downloaded = downloaded
         self.expected = expected
+
+
+class XAttrMetadataError(Exception):
+    def __init__(self, code=None, msg='Unknown error'):
+        super(XAttrMetadataError, self).__init__(msg)
+        self.code = code
+        self.msg = msg
+
+        # Parsing code and msg
+        if (self.code in (errno.ENOSPC, errno.EDQUOT) or
+                'No space left' in self.msg or 'Disk quota excedded' in self.msg):
+            self.reason = 'NO_SPACE'
+        elif self.code == errno.E2BIG or 'Argument list too long' in self.msg:
+            self.reason = 'VALUE_TOO_LONG'
+        else:
+            self.reason = 'NOT_SUPPORTED'
+
+
+class XAttrUnavailableError(Exception):
+    pass
 
 
 def _create_http_connection(ydl_handler, http_class, is_https, *args, **kwargs):
@@ -1666,6 +1691,10 @@ def url_basename(url):
     return path.strip('/').split('/')[-1]
 
 
+def base_url(url):
+    return re.match(r'https?://[^?#&]+/', url).group()
+
+
 class HEADRequest(compat_urllib_request.Request):
     def get_method(self):
         return 'HEAD'
@@ -1793,8 +1822,12 @@ def get_exe_version(exe, args=['--version'],
     """ Returns the version of the specified executable,
     or False if the executable is not present """
     try:
+        # STDIN should be redirected too. On UNIX-like systems, ffmpeg triggers
+        # SIGTTOU if youtube-dl is run in the background.
+        # See https://github.com/rg3/youtube-dl/issues/955#issuecomment-209789656
         out, _ = subprocess.Popen(
             [encodeArgument(exe)] + args,
+            stdin=subprocess.PIPE,
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
     except OSError:
         return False
@@ -2316,11 +2349,18 @@ def _match_one(filter_part, dct):
     m = operator_rex.search(filter_part)
     if m:
         op = COMPARISON_OPERATORS[m.group('op')]
-        if m.group('strval') is not None:
+        actual_value = dct.get(m.group('key'))
+        if (m.group('strval') is not None or
+            # If the original field is a string and matching comparisonvalue is
+            # a number we should respect the origin of the original field
+            # and process comparison value as a string (see
+            # https://github.com/rg3/youtube-dl/issues/11082).
+            actual_value is not None and m.group('intval') is not None and
+                isinstance(actual_value, compat_str)):
             if m.group('op') not in ('=', '!='):
                 raise ValueError(
                     'Operator %s does not support string values!' % m.group('op'))
-            comparison_value = m.group('strval')
+            comparison_value = m.group('strval') or m.group('intval')
         else:
             try:
                 comparison_value = int(m.group('intval'))
@@ -2332,7 +2372,6 @@ def _match_one(filter_part, dct):
                     raise ValueError(
                         'Invalid integer value %r in filter part %r' % (
                             m.group('intval'), filter_part))
-        actual_value = dct.get(m.group('key'))
         if actual_value is None:
             return m.group('none_inclusive')
         return op(actual_value, comparison_value)
@@ -2994,9 +3033,7 @@ def encode_base_n(num, n, table=None):
 
 
 def decode_packed_codes(code):
-    mobj = re.search(
-        r"}\('(.+)',(\d+),(\d+),'([^']+)'\.split\('\|'\)",
-        code)
+    mobj = re.search(PACKED_CODES_RE, code)
     obfucasted_code, base, count, symbols = mobj.groups()
     base = int(base)
     count = int(count)
@@ -3131,3 +3168,87 @@ def decode_png(png_data):
             current_row.append(color)
 
     return width, height, pixels
+
+
+def write_xattr(path, key, value):
+    # This mess below finds the best xattr tool for the job
+    try:
+        # try the pyxattr module...
+        import xattr
+
+        if hasattr(xattr, 'set'):  # pyxattr
+            # Unicode arguments are not supported in python-pyxattr until
+            # version 0.5.0
+            # See https://github.com/rg3/youtube-dl/issues/5498
+            pyxattr_required_version = '0.5.0'
+            if version_tuple(xattr.__version__) < version_tuple(pyxattr_required_version):
+                # TODO: fallback to CLI tools
+                raise XAttrUnavailableError(
+                    'python-pyxattr is detected but is too old. '
+                    'youtube-dl requires %s or above while your version is %s. '
+                    'Falling back to other xattr implementations' % (
+                        pyxattr_required_version, xattr.__version__))
+
+            setxattr = xattr.set
+        else:  # xattr
+            setxattr = xattr.setxattr
+
+        try:
+            setxattr(path, key, value)
+        except EnvironmentError as e:
+            raise XAttrMetadataError(e.errno, e.strerror)
+
+    except ImportError:
+        if compat_os_name == 'nt':
+            # Write xattrs to NTFS Alternate Data Streams:
+            # http://en.wikipedia.org/wiki/NTFS#Alternate_data_streams_.28ADS.29
+            assert ':' not in key
+            assert os.path.exists(path)
+
+            ads_fn = path + ':' + key
+            try:
+                with open(ads_fn, 'wb') as f:
+                    f.write(value)
+            except EnvironmentError as e:
+                raise XAttrMetadataError(e.errno, e.strerror)
+        else:
+            user_has_setfattr = check_executable('setfattr', ['--version'])
+            user_has_xattr = check_executable('xattr', ['-h'])
+
+            if user_has_setfattr or user_has_xattr:
+
+                value = value.decode('utf-8')
+                if user_has_setfattr:
+                    executable = 'setfattr'
+                    opts = ['-n', key, '-v', value]
+                elif user_has_xattr:
+                    executable = 'xattr'
+                    opts = ['-w', key, value]
+
+                cmd = ([encodeFilename(executable, True)] +
+                       [encodeArgument(o) for o in opts] +
+                       [encodeFilename(path, True)])
+
+                try:
+                    p = subprocess.Popen(
+                        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+                except EnvironmentError as e:
+                    raise XAttrMetadataError(e.errno, e.strerror)
+                stdout, stderr = p.communicate()
+                stderr = stderr.decode('utf-8', 'replace')
+                if p.returncode != 0:
+                    raise XAttrMetadataError(p.returncode, stderr)
+
+            else:
+                # On Unix, and can't find pyxattr, setfattr, or xattr.
+                if sys.platform.startswith('linux'):
+                    raise XAttrUnavailableError(
+                        "Couldn't find a tool to set the xattrs. "
+                        "Install either the python 'pyxattr' or 'xattr' "
+                        "modules, or the GNU 'attr' package "
+                        "(which contains the 'setfattr' tool).")
+                else:
+                    raise XAttrUnavailableError(
+                        "Couldn't find a tool to set the xattrs. "
+                        "Install either the python 'xattr' module, "
+                        "or the 'xattr' binary.")

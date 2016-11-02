@@ -369,7 +369,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
     IE_NAME = 'youtube'
     _TESTS = [
         {
-            'url': 'http://www.youtube.com/watch?v=BaW_jenozKc&t=1s&end=9',
+            'url': 'https://www.youtube.com/watch?v=BaW_jenozKc&t=1s&end=9',
             'info_dict': {
                 'id': 'BaW_jenozKc',
                 'ext': 'mp4',
@@ -389,7 +389,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
             }
         },
         {
-            'url': 'http://www.youtube.com/watch?v=UxxajLWwzqY',
+            'url': 'https://www.youtube.com/watch?v=UxxajLWwzqY',
             'note': 'Test generic use_cipher_signature video (#897)',
             'info_dict': {
                 'id': 'UxxajLWwzqY',
@@ -443,7 +443,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
             }
         },
         {
-            'url': 'http://www.youtube.com/watch?v=BaW_jenozKc&v=UxxajLWwzqY',
+            'url': 'https://www.youtube.com/watch?v=BaW_jenozKc&v=UxxajLWwzqY',
             'note': 'Use the first video ID in the URL',
             'info_dict': {
                 'id': 'BaW_jenozKc',
@@ -465,7 +465,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
             },
         },
         {
-            'url': 'http://www.youtube.com/watch?v=a9LDPn-MO4I',
+            'url': 'https://www.youtube.com/watch?v=a9LDPn-MO4I',
             'note': '256k DASH audio (format 141) via DASH manifest',
             'info_dict': {
                 'id': 'a9LDPn-MO4I',
@@ -539,7 +539,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
         },
         # Normal age-gate video (No vevo, embed allowed)
         {
-            'url': 'http://youtube.com/watch?v=HtVdAasjOgU',
+            'url': 'https://youtube.com/watch?v=HtVdAasjOgU',
             'info_dict': {
                 'id': 'HtVdAasjOgU',
                 'ext': 'mp4',
@@ -555,7 +555,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
         },
         # Age-gate video with encrypted signature
         {
-            'url': 'http://www.youtube.com/watch?v=6kLq3WMV1nU',
+            'url': 'https://www.youtube.com/watch?v=6kLq3WMV1nU',
             'info_dict': {
                 'id': '6kLq3WMV1nU',
                 'ext': 'mp4',
@@ -748,11 +748,11 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
             'skip': 'Not multifeed anymore',
         },
         {
-            'url': 'http://vid.plus/FlRa-iH7PGw',
+            'url': 'https://vid.plus/FlRa-iH7PGw',
             'only_matching': True,
         },
         {
-            'url': 'http://zwearz.com/watch/9lWxNJF-ufM/electra-woman-dyna-girl-official-trailer-grace-helbig.html',
+            'url': 'https://zwearz.com/watch/9lWxNJF-ufM/electra-woman-dyna-girl-official-trailer-grace-helbig.html',
             'only_matching': True,
         },
         {
@@ -1846,7 +1846,7 @@ class YoutubePlaylistIE(YoutubePlaylistBaseInfoExtractor):
         'playlist_count': 2,
     }, {
         'note': 'embedded',
-        'url': 'http://www.youtube.com/embed/videoseries?list=PL6IaIsEjSbf96XFRuNccS_RuEXwNdsoEu',
+        'url': 'https://www.youtube.com/embed/videoseries?list=PL6IaIsEjSbf96XFRuNccS_RuEXwNdsoEu',
         'playlist_count': 4,
         'info_dict': {
             'title': 'JODA15',
@@ -1854,7 +1854,7 @@ class YoutubePlaylistIE(YoutubePlaylistBaseInfoExtractor):
         }
     }, {
         'note': 'Embedded SWF player',
-        'url': 'http://www.youtube.com/p/YN5VISEtHet5D4NEvfTd0zcgFk84NqFZ?hl=en_US&fs=1&rel=0',
+        'url': 'https://www.youtube.com/p/YN5VISEtHet5D4NEvfTd0zcgFk84NqFZ?hl=en_US&fs=1&rel=0',
         'playlist_count': 4,
         'info_dict': {
             'title': 'JODA7',
@@ -1867,7 +1867,7 @@ class YoutubePlaylistIE(YoutubePlaylistBaseInfoExtractor):
             'title': 'Uploads from Interstellar Movie',
             'id': 'UUXw-G3eDE9trcvY2sBMM_aA',
         },
-        'playlist_mincout': 21,
+        'playlist_mincount': 21,
     }, {
         # Playlist URL that does not actually serve a playlist
         'url': 'https://www.youtube.com/watch?v=FqZTN594JQw&list=PLMYEtVRpaqY00V9W81Cwmzp6N6vZqfUKD4',
@@ -1890,6 +1890,27 @@ class YoutubePlaylistIE(YoutubePlaylistBaseInfoExtractor):
             'skip_download': True,
         },
         'add_ie': [YoutubeIE.ie_key()],
+    }, {
+        'url': 'https://youtu.be/yeWKywCrFtk?list=PL2qgrgXsNUG5ig9cat4ohreBjYLAPC0J5',
+        'info_dict': {
+            'id': 'yeWKywCrFtk',
+            'ext': 'mp4',
+            'title': 'Small Scale Baler and Braiding Rugs',
+            'uploader': 'Backus-Page House Museum',
+            'uploader_id': 'backuspagemuseum',
+            'uploader_url': 're:https?://(?:www\.)?youtube\.com/user/backuspagemuseum',
+            'upload_date': '20161008',
+            'license': 'Standard YouTube License',
+            'description': 'md5:800c0c78d5eb128500bffd4f0b4f2e8a',
+            'categories': ['Nonprofits & Activism'],
+            'tags': list,
+            'like_count': int,
+            'dislike_count': int,
+        },
+        'params': {
+            'noplaylist': True,
+            'skip_download': True,
+        },
     }, {
         'url': 'https://youtu.be/uWyaPkt-VOI?list=PL9D9FC436B881BA21',
         'only_matching': True,
@@ -1971,8 +1992,10 @@ class YoutubePlaylistIE(YoutubePlaylistBaseInfoExtractor):
     def _check_download_just_video(self, url, playlist_id):
         # Check if it's a video-specific URL
         query_dict = compat_urlparse.parse_qs(compat_urlparse.urlparse(url).query)
-        if 'v' in query_dict:
-            video_id = query_dict['v'][0]
+        video_id = query_dict.get('v', [None])[0] or self._search_regex(
+            r'(?:^|//)youtu\.be/([0-9A-Za-z_-]{11})', url,
+            'video id', default=None)
+        if video_id:
             if self._downloader.params.get('noplaylist'):
                 self.to_screen('Downloading just video %s because of --no-playlist' % video_id)
                 return video_id, self.url_result(video_id, 'Youtube', video_id=video_id)
@@ -2152,11 +2175,11 @@ class YoutubeUserIE(YoutubeChannelIE):
 
 class YoutubeLiveIE(YoutubeBaseInfoExtractor):
     IE_DESC = 'YouTube.com live streams'
-    _VALID_URL = r'(?P<base_url>https?://(?:\w+\.)?youtube\.com/(?:user|channel)/(?P<id>[^/]+))/live'
+    _VALID_URL = r'(?P<base_url>https?://(?:\w+\.)?youtube\.com/(?:user|channel|c)/(?P<id>[^/]+))/live'
     IE_NAME = 'youtube:live'
 
     _TESTS = [{
-        'url': 'http://www.youtube.com/user/TheYoungTurks/live',
+        'url': 'https://www.youtube.com/user/TheYoungTurks/live',
         'info_dict': {
             'id': 'a48o2S1cPoo',
             'ext': 'mp4',
@@ -2176,7 +2199,10 @@ class YoutubeLiveIE(YoutubeBaseInfoExtractor):
             'skip_download': True,
         },
     }, {
-        'url': 'http://www.youtube.com/channel/UC1yBKRuGpC1tSM73A0ZjYjQ/live',
+        'url': 'https://www.youtube.com/channel/UC1yBKRuGpC1tSM73A0ZjYjQ/live',
+        'only_matching': True,
+    }, {
+        'url': 'https://www.youtube.com/c/CommanderVideoHq/live',
         'only_matching': True,
     }]
 
@@ -2201,7 +2227,7 @@ class YoutubePlaylistsIE(YoutubePlaylistsBaseInfoExtractor):
     IE_NAME = 'youtube:playlists'
 
     _TESTS = [{
-        'url': 'http://www.youtube.com/user/ThirstForScience/playlists',
+        'url': 'https://www.youtube.com/user/ThirstForScience/playlists',
         'playlist_mincount': 4,
         'info_dict': {
             'id': 'ThirstForScience',
@@ -2209,7 +2235,7 @@ class YoutubePlaylistsIE(YoutubePlaylistsBaseInfoExtractor):
         },
     }, {
         # with "Load more" button
-        'url': 'http://www.youtube.com/user/igorkle1/playlists?view=1&sort=dd',
+        'url': 'https://www.youtube.com/user/igorkle1/playlists?view=1&sort=dd',
         'playlist_mincount': 70,
         'info_dict': {
             'id': 'igorkle1',
@@ -2442,10 +2468,10 @@ class YoutubeTruncatedURLIE(InfoExtractor):
     '''
 
     _TESTS = [{
-        'url': 'http://www.youtube.com/watch?annotation_id=annotation_3951667041',
+        'url': 'https://www.youtube.com/watch?annotation_id=annotation_3951667041',
         'only_matching': True,
     }, {
-        'url': 'http://www.youtube.com/watch?',
+        'url': 'https://www.youtube.com/watch?',
         'only_matching': True,
     }, {
         'url': 'https://www.youtube.com/watch?x-yt-cl=84503534',
@@ -2466,7 +2492,7 @@ class YoutubeTruncatedURLIE(InfoExtractor):
             'Did you forget to quote the URL? Remember that & is a meta '
             'character in most shells, so you want to put the URL in quotes, '
             'like  youtube-dl '
-            '"http://www.youtube.com/watch?feature=foo&v=BaW_jenozKc" '
+            '"https://www.youtube.com/watch?feature=foo&v=BaW_jenozKc" '
             ' or simply  youtube-dl BaW_jenozKc  .',
             expected=True)
 

@@ -1,4 +1,4 @@
-# encoding: utf-8
+# coding: utf-8
 from __future__ import unicode_literals
 
 import re
@@ -127,9 +127,9 @@ class ProSiebenSat1IE(ProSiebenSat1BaseIE):
                         (?:www\.)?
                         (?:
                             (?:
-                                prosieben|prosiebenmaxx|sixx|sat1(?:gold)?|kabeleins|the-voice-of-germany|7tv|kabeleinsdoku
+                                prosieben(?:maxx)?|sixx|sat1(?:gold)?|kabeleins(?:doku)?|the-voice-of-germany|7tv|advopedia
                             )\.(?:de|at|ch)|
-                            ran\.de|fem\.com
+                            ran\.de|fem\.com|advopedia\.de
                         )
                         /(?P<id>.+)
                     '''
@@ -312,6 +312,10 @@ class ProSiebenSat1IE(ProSiebenSat1BaseIE):
         },
         {
             'url': 'http://www.sat1gold.de/tv/edel-starck/playlist/die-gesamte-1-staffel',
+            'only_matching': True,
+        },
+        {
+            'url': 'http://www.advopedia.de/videos/lenssen-klaert-auf/lenssen-klaert-auf-folge-8-staffel-3-feiertage-und-freie-tage',
             'only_matching': True,
         },
     ]

@@ -1,4 +1,4 @@
-# encoding: utf-8
+# coding: utf-8
 
 from __future__ import unicode_literals
 
@@ -27,7 +27,6 @@ from ..utils import (
     unified_strdate,
     unsmuggle_url,
     UnsupportedError,
-    url_basename,
     xpath_text,
 )
 from .brightcove import (
@@ -1209,20 +1208,6 @@ class GenericIE(InfoExtractor):
                 'duration': 51690,
             },
         },
-        # JWPlayer with M3U8
-        {
-            'url': 'http://ren.tv/novosti/2015-09-25/sluchaynyy-prohozhiy-poymal-avtougonshchika-v-murmanske-video',
-            'info_dict': {
-                'id': 'playlist',
-                'ext': 'mp4',
-                'title': 'Случайный прохожий поймал автоугонщика в Мурманске. ВИДЕО | РЕН ТВ',
-                'uploader': 'ren.tv',
-            },
-            'params': {
-                # m3u8 downloads
-                'skip_download': True,
-            }
-        },
         # Brightcove embed, with no valid 'renditions' but valid 'IOSRenditions'
         # This video can't be played in browsers if Flash disabled and UA set to iPhone, which is actually a false alarm
         {
@@ -1549,7 +1534,7 @@ class GenericIE(InfoExtractor):
             force_videoid = smuggled_data['force_videoid']
             video_id = force_videoid
         else:
-            video_id = compat_urllib_parse_unquote(os.path.splitext(url.rstrip('/').split('/')[-1])[0])
+            video_id = self._generic_id(url)
 
         self.to_screen('%s: Requesting header' % video_id)
 
@@ -1578,7 +1563,7 @@ class GenericIE(InfoExtractor):
 
         info_dict = {
             'id': video_id,
-            'title': compat_urllib_parse_unquote(os.path.splitext(url_basename(url))[0]),
+            'title': self._generic_title(url),
             'upload_date': unified_strdate(head_response.headers.get('Last-Modified'))
         }
 
@@ -1649,6 +1634,10 @@ class GenericIE(InfoExtractor):
             doc = compat_etree_fromstring(webpage.encode('utf-8'))
             if doc.tag == 'rss':
                 return self._extract_rss(url, video_id, doc)
+            elif doc.tag == 'SmoothStreamingMedia':
+                info_dict['formats'] = self._parse_ism_formats(doc, url)
+                self._sort_formats(info_dict['formats'])
+                return info_dict
             elif re.match(r'^(?:{[^}]+})?smil$', doc.tag):
                 smil = self._parse_smil(doc, url, video_id)
                 self._sort_formats(smil['formats'])
@@ -1754,9 +1743,9 @@ class GenericIE(InfoExtractor):
         if matches:
             return _playlist_from_matches(matches, ie='RtlNl')
 
-        vimeo_url = VimeoIE._extract_vimeo_url(url, webpage)
-        if vimeo_url is not None:
-            return self.url_result(vimeo_url)
+        vimeo_urls = VimeoIE._extract_urls(url, webpage)
+        if vimeo_urls:
+            return _playlist_from_matches(vimeo_urls, ie=VimeoIE.ie_key())
 
         vid_me_embed_url = self._search_regex(
             r'src=[\'"](https?://vid\.me/[^\'"]+)[\'"]',
@@ -2332,12 +2321,23 @@ class GenericIE(InfoExtractor):
             info_dict.update(json_ld)
             return info_dict
 
+        # Look for HTML5 media
+        entries = self._parse_html5_media_entries(url, webpage, video_id, m3u8_id='hls')
+        if entries:
+            for entry in entries:
+                entry.update({
+                    'id': video_id,
+                    'title': video_title,
+                })
+                self._sort_formats(entry['formats'])
+            return self.playlist_result(entries)
+
         def check_video(vurl):
             if YoutubeIE.suitable(vurl):
                 return True
             vpath = compat_urlparse.urlparse(vurl).path
             vext = determine_ext(vpath)
-            return '.' in vpath and vext not in ('swf', 'png', 'jpg', 'srt', 'sbv', 'sub', 'vtt', 'ttml')
+            return '.' in vpath and vext not in ('swf', 'png', 'jpg', 'srt', 'sbv', 'sub', 'vtt', 'ttml', 'js')
 
         def filter_video(urls):
             return list(filter(check_video, urls))
@@ -2387,9 +2387,6 @@ class GenericIE(InfoExtractor):
             # We only look in og:video if the MIME type is a video, don't try if it's a Flash player:
             if m_video_type is not None:
                 found = filter_video(re.findall(r'<meta.*?property="og:video".*?content="(.*?)"', webpage))
-        if not found:
-            # HTML5 video
-            found = re.findall(r'(?s)<(?:video|audio)[^<]*(?:>.*?<source[^>]*)?\s+src=["\'](.*?)["\']', webpage)
         if not found:
             REDIRECT_REGEX = r'[0-9]{,2};\s*(?:URL|url)=\'?([^\'"]+)'
             found = re.search(
@@ -2456,6 +2453,8 @@ class GenericIE(InfoExtractor):
                 entry_info_dict['formats'] = self._extract_mpd_formats(video_url, video_id)
             elif ext == 'f4m':
                 entry_info_dict['formats'] = self._extract_f4m_formats(video_url, video_id)
+            elif re.search(r'(?i)\.ism/manifest', video_url):
+                entry_info_dict['formats'] = self._extract_ism_formats(video_url, video_id)
             else:
                 entry_info_dict['url'] = video_url
 

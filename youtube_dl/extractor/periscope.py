@@ -87,7 +87,7 @@ class PeriscopeIE(PeriscopeBaseIE):
                 'ext': 'flv' if format_id == 'rtmp' else 'mp4',
             }
             if format_id != 'rtmp':
-                f['protocol'] = 'm3u8_native' if state == 'ended' else 'm3u8'
+                f['protocol'] = 'm3u8_native' if state in ('ended', 'timed_out') else 'm3u8'
             formats.append(f)
         self._sort_formats(formats)
 
@@ -132,7 +132,7 @@ class PeriscopeUserIE(PeriscopeBaseIE):
 
         user = list(data_store['UserCache']['users'].values())[0]['user']
         user_id = user['id']
-        session_id = data_store['SessionToken']['broadcastHistory']['token']['session_id']
+        session_id = data_store['SessionToken']['public']['broadcastHistory']['token']['session_id']
 
         broadcasts = self._call_api(
             'getUserBroadcastsPublic',
